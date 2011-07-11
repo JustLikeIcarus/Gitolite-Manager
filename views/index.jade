@@ -3,7 +3,7 @@ h1= title
     h3 Add User
     form(action='/newuser', method='post')
       label Name:
-      br
+      br	
       input(type='text', name='name')
       br
       label Username:
@@ -27,6 +27,28 @@ h1= title
       textarea(name='pubkey')
       br
       input(type='submit', value='Add User!')
+    h3 Remove User
+    form(action='/deleteuser', method='post')
+       select(name='user')
+          - each user in users
+            option(value='#{user.name}') #{user.name}
+      input(type='submit', value='Remove User')
+    h2 Manage Groups
+    h3 Add Group
+    form(action='/newgroup', method='post')
+       label Name:
+       br
+       input(type='text', name='name')
+       h4 Members:
+       h5 Groups
+       - each group in groups
+         input(type='checkbox', name='member', value='#{group.value}') 
+         #{group.name}
+       h5 Users
+       - each user in users
+         input(type='checkbox', name='member', value='#{user.value}') 
+         #{user.name}
+      input(type='submit', value='Add Group!')
     h2 Manage Repos
     h3 Add Repo
     form(action='/newrepo', method='post')

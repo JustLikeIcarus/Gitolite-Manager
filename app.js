@@ -160,7 +160,19 @@ function generateGitoliteConf(colbac) {
 		
 	});
 }
-
+function Gitolitecommitandpush(message){
+	exec('cd '+config.gitolitepath+'/ && git commit -m "' + message + '"', function (err, stdout, stderr) {
+		if (err !== null) {
+			console.log(err);
+		}
+		exec('cd '+config.gitolitepath+'/ && git push', function (err, stdout, stderr) {
+			if (err !== null) {
+   				console.log(err);
+			}
+			console.log("commited!");
+		});
+	});
+}
 // Routes
 
 app.get('/', function(req, res){
@@ -210,22 +222,12 @@ app.post('/newrepo', function(req, res) {
        					}
         				console.log("Guardado Conf");
         				exec('cd '+config.gitolitepath+'/ && git add conf/gitolite.conf', function (err, stdout, stderr) {
-           				if (err !== null) {
-               				console.log(err);
-           				}
-           				console.log("Agregado al repo");
-           					exec('cd '+config.gitolitepath+'/ && git commit -m "' + confChanges + '"', function (err, stdout, stderr) {
-               					if (err !== null) {
-                   					console.log(err);
-              					}
-               					exec('cd '+config.gitolitepath+'/ && git push', function (err, stdout, stderr) {
-									if (err !== null) {
-		                   				console.log(err);
-		              				}
-									console.log("commited!");
-								});
-               					res.send("Successfully added Repository: "+req.body.name, 200);
-           					});
+           					if (err !== null) {
+               					console.log(err);
+           					}
+           					console.log("Agregado al repo");
+							res.send("Successfully added Repository: "+req.body.name, 200);
+           					Gitolitecommitandpush(confChanges)
         				});
     				});
 				});
@@ -286,17 +288,7 @@ app.post('/newuser', function(req, res){
                				console.log(err);
            				}
            				console.log("Agregada al repo");
-           				exec('cd '+config.gitolitepath+'/ && git commit -m "' + confChanges + '"', function (err, stdout, stderr) {
-               				if (err !== null) {
-                   				console.log(err);
-              				}
-							exec('cd '+config.gitolitepath+'/ && git push', function (err, stdout, stderr) {
-								if (err !== null) {
-	                   				console.log(err);
-	              				}
-								console.log("commited!");
-							});
-               			});
+           				Gitolitecommitandpush(confChanges);
 					});
 				});
 				dbClient.query("INSERT INTO `users` (`name`, `username`, `password`, `email`) VALUES ('"+req.body.name+"', '"+req.body.username+"', '"+md5(req.body.pass)+"', '"+req.body.email+"')");
@@ -307,5 +299,47 @@ app.post('/newuser', function(req, res){
 	//
 });
 
+app.post('/deleteuser'. function(req, res){
+	var querystr = "DELETE FROM `users` WHERE `username` = "+req.body.user;
+	/*if (req.body.user.substr(0,1) == "@"){
+		querystr = "DELETE FROM `groups` WHERE `id` = "+req.body.user.substr(1,req.body.user.length-1);
+	}*/
+	dbClient.query(querystr, function(err, resq, fields){
+		if(err){
+			console.log(err);
+			res.send("Couldn't delete it", 200);
+		} else{
+			console.log("Deleted from database");
+			fs.unlink(config.gitolitepath+'/keydir/'+req.body.user'.pub', function(err){
+				if (!err){
+					var confChanges;
+					exec('cd '+config.gitolitepath+' && git rm keydir/'+req.body.user'.pub', function(){
+						if (err !== null) {
+               				console.log(err);
+           				}
+           				console.log("Deleted pubkey and sent to commit");
+						generateGitoliteConf(function(result){
+							fs.writeFile(config.gitolitepath +'/conf/gitolite.conf', result, function (err) {
+		       					if (err) {
+		           					console.log('nooooo');
+		           					throw err;
+		       					}
+		        				console.log("Generated new conf without the deleted user");
+		        				exec('cd '+config.gitolitepath+'/ && git add conf/gitolite.conf', function (err, stdout, stderr) {
+		           					if (err !== null) {
+		               					console.log(err);
+		           					}
+		           					console.log("conf added to comit");
+									res.send("Successfully deleted user: "+req.body.name, 200);
+		           					Gitolitecommitandpush(confChanges)
+		        				});
+		    				});
+						});
+					});
+				}
+			});
+		}
+	});
+});
 app.listen(6170);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
