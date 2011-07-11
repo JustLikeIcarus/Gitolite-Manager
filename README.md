@@ -10,10 +10,10 @@ It provides a commit for each action it does so is really easy to understand. Al
 
 ##TODO
 
-*Add Groups
-*Use credentials when created the user to filter access to the tools
-*Add edit and delete actions for Users, Groups and repos.
-*Pack it so we can just npm and be ready to use it.
+* Add Groups
+* Use credentials when created the user to filter access to the tools
+* Add edit and delete actions for Users, Groups and repos.
+* Pack it so we can just npm and be ready to use it.
 
 ## Why?
 
