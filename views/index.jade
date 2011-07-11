@@ -1,0 +1,47 @@
+h1= title
+    h2 Manage Users
+    h3 Add User
+    form(action='/newuser', method='post')
+      label Name:
+      br
+      input(type='text', name='name')
+      br
+      label Username:
+      br
+      input(type='text', name='username')
+      br
+      label E-mail:
+      br
+      input(type='text', name='email')
+      br
+      label Password:
+      br
+      input(type='password', name='pass')
+      br
+      label Confirm Password
+      br
+      input(type='password', name='pass_conf')
+      br
+      label SSH Public Key
+      br
+      textarea(name='pubkey')
+      br
+      input(type='submit', value='Add User!')
+    h2 Manage Repos
+    h3 Add Repo
+    form(action='/newrepo', method='post')
+      label Name:
+      br
+      input(type='text', name='name')
+      br
+      label Owner:
+      br
+      select(name='owner')
+        optgroup(label='Groups')
+          - each group in groups
+            option(value='#{group.value}') #{group.name}
+        optgroup(label='Users')
+          - each user in users
+            option(value='#{user.value}') #{user.name}
+      br
+      input(type='submit', value='Add Repo!')
