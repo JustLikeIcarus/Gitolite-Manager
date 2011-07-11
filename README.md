@@ -28,8 +28,8 @@ Installation goes like this:
 * Make sure that the user who is running this node can push the repo.
 * Run the database.sql on mysql
 * Manually add the Users, Repos and Groups if they already exist (Directly to the database).
-> **Note:** in the fields R, RW, RW+, owners and members in the repositories and groups tables respectively. is an "array" comma separated of their ids.. in case of a group, it is referred with an at (@). 
-> *Example: "@1,3,5" refers to the group with id 1, and members with id 3 and 5.*
+   > **Note:** in the fields R, RW, RW+, owners and members in the repositories and groups tables respectively. is an "array" comma separated of their ids.. in case of a group, it is referred with an at (@). 
+   > *Example: "@1,3,5" refers to the group with id 1, and members with id 3 and 5.*
 
 **Congrats, you should be good to go, run the node and go to the URL you provided**
 
