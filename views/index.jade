@@ -48,7 +48,7 @@ h1= title
        - each user in users
          input(type='checkbox', name='member', value='#{user.value}') 
          #{user.name}
-      input(type='submit', value='Add Group!')
+       input(type='submit', value='Add Group!')
     h2 Manage Repos
     h3 Add Repo
     form(action='/newrepo', method='post')
