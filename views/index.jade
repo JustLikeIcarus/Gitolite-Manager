@@ -49,6 +49,12 @@ h1= title
          input(type='checkbox', name='member', value='#{user.value}') 
          #{user.name}
        input(type='submit', value='Add Group!')
+    h3 Delete Group
+    form(action='/deletegroup', method='post')
+       select(name='group')
+          - each group in groups
+            option(value='#{group.value}') #{group.name}
+       input(type='submit', value='Remove Group')	
     h2 Manage Repos
     h3 Add Repo
     form(action='/newrepo', method='post')

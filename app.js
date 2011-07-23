@@ -296,7 +296,6 @@ app.post('/newuser', function(req, res){
 			}
 		});
 	}); 
-	//
 });
 
 app.post('/newgroup', function(req, res){
@@ -315,7 +314,10 @@ app.post('/newgroup', function(req, res){
 			});
 			return;
 		}
-		var mebersjoined = req.body.member.join(",");
+		var mebersjoined = req.body.member;
+		if (typeof req.body.member == "Array"){
+			var mebersjoined = req.body.member.join(",");
+		}
 		dbClient.query("INSERT INTO `groups` (`name`, `members`) VALUES ('"+req.body.name+"', '"+mebersjoined+"')", function (err, rest, fields) {
 			if (err) {
 				throw err;
@@ -342,6 +344,37 @@ app.post('/newgroup', function(req, res){
 		});
 	});
 });
+
+app.post('/deletegroup', function(req, res){
+	var groupid = req.body.group.replace("@", "");
+	var querystr = "DELETE FROM `groups` WHERE `id` = '"+groupid+"'";
+	dbClient.query(querystr, function(err, resq, fields){
+		if (err){
+			console.log(err);
+			res.send("ERROR", 200);
+			return;
+		}
+		var confChanges = "Deleted Group";
+		generateGitoliteConf(function(result){
+			fs.writeFile(config.gitolitepath +'/conf/gitolite.conf', result, function (err) {
+		    	if (err) {
+		    		console.log('nooooo');
+		        	throw err;
+		       	}
+		        console.log("Generated new conf without the deleted group");
+		        exec('cd '+config.gitolitepath+'/ && git add conf/gitolite.conf', function (err, stdout, stderr) {
+		        if (err !== null) {
+		        	console.log(err);
+		        }
+		        console.log("conf added to commit");
+				res.send("Successfully deleted group: "+req.body.user, 200);
+		        	Gitolitecommitandpush(confChanges)
+		        });
+		    });
+	    });	
+	});
+});
+
 app.post('/deleteuser', function(req, res){
 	var querystr = "DELETE FROM `users` WHERE `username` = '"+req.body.user+"'";
 	/*if (req.body.user.substr(0,1) == "@"){
@@ -372,7 +405,7 @@ app.post('/deleteuser', function(req, res){
 		           					if (err !== null) {
 		               					console.log(err);
 		           					}
-		           					console.log("conf added to comit");
+		           					console.log("conf added to commit");
 									res.send("Successfully deleted user: "+req.body.user, 200);
 		           					Gitolitecommitandpush(confChanges)
 		        				});
